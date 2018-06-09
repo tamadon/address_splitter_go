@@ -2,6 +2,9 @@ package main
 
 import "fmt"
 import "regexp"
+import "os"
+import "bufio"
+import "strings"
 
 func trimExtraString(address string) string {
 	// 電話番号と思わしき文字列を削除
@@ -58,13 +61,29 @@ func getCity(inputString string) string {
 	return ""
 }
 
+// 文字列を1行入力
+func StrStdin() (stringInput string) {
+    scanner := bufio.NewScanner(os.Stdin)
+
+    scanner.Scan()
+    stringInput = scanner.Text()
+
+    stringInput = strings.TrimSpace(stringInput)
+    return
+}
+
 func main() {
-	address := "〒105-0011 東京都港区芝公園4丁目2-8東京タワー大展望台2F TEL:03-3433-5111"
+	address := StrStdin()
 	trimedAddress := trimExtraString(address)
 	prefecture := getPrefecture(trimedAddress)
-	city := getCity(trimedAddress)
 
-	result := prefecture + city
+	trimedPrefectureAddress := trimStringRegexp(trimedAddress, prefecture)
+	city := getCity(trimedPrefectureAddress)
 
-	fmt.Println(result)
+	etc := trimStringRegexp(trimedPrefectureAddress, city)
+
+	fmt.Println(trimedAddress)
+	fmt.Println(prefecture)
+	fmt.Println(city)
+	fmt.Println(etc)
 }
