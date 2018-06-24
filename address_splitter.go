@@ -136,22 +136,28 @@ func normBuilding(input string) string {
 	rep2 := regexp.MustCompile(`\(.*`)
 	result = rep2.ReplaceAllString(result, "")
 
-	// rep3 := regexp.MustCompile(`(\d+)F`)
-	// result = rep3.ReplaceAllString(result, "$1階")
+	pattern1 := `(\d+)F`
+	rep3 := regexp.MustCompile(pattern1)
+
+	// todo: 検索でマッチした文字列の置換がうまく行かなかったためこういうロジックになっているが
+	// 可能なら検索でマッチした文字列の置換で綺麗に書きたい
+	if rep3.Match([]byte(result)) {
+		str := rep3.FindString(result)
+		normedFloor := regexp.MustCompile("F").ReplaceAllString(str, "階")
+
+		arr2 := rep3.Split(result, -1)
+		result = arr2[0] + normedFloor + arr2[1]
+	}
 
 	// 「○階」「○号室」を含む場合、そこまでしか読み取らない
 	rep4 := regexp.MustCompile(`.*号室`)
-	splitStr := rep4.Split(result, -1)
-	result = trimStringRegexp(result, splitStr[1])
-
-	// result = rep4.ReplaceAllString(result, "$0")
-
-	// rep5 := regexp.MustCompile(`.*階`)
-	// result = rep5.ReplaceAllString(result, "$1")
-
 	rep5 := regexp.MustCompile(`.*階`)
-	splitStr2 := rep5.Split(result, -1)
-	result = trimStringRegexp(result, splitStr2[1])
+
+	if rep4.Match([]byte(result)) {
+		result = rep4.FindString(result)
+	} else if rep5.Match([]byte(result)) {
+		result = rep5.FindString(result)
+	}
 
 	rep6 := regexp.MustCompile(`^ +`)
 	result = rep6.ReplaceAllString(result, "")
@@ -202,7 +208,6 @@ func main() {
 	fmt.Println(prefecture)
 	fmt.Println(city)
 	fmt.Println(town)
-	// fmt.Println(address)
 	fmt.Println(normAddress)
 	fmt.Println(building)
 }
